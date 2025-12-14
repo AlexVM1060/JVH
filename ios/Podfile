@@ -1,54 +1,39 @@
-# Defines the minimum iOS version your app will support.
-# This MUST match the 'IPHONEOS_DEPLOYMENT_TARGET' in your Xcode project settings.
-# Firebase and other modern plugins require a higher version.
 platform :ios, '15.0'
 
-# Standard boilerplate to disable CocoaPods analytics.
+# CocoaPods analytics is not supported on CI
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
-# Maps your Xcode project's build configurations to the ones CocoaPods will use.
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,
   'Release' => :release,
 }
 
-# This is a Flutter-specific function. It injects required settings into each dependency (Pod).
-def flutter_additional_ios_build_settings(target)
-  # 'use_frameworks!' is necessary for Flutter and many plugins (like Firebase) that use Swift.
-  # We use static linkage for better compatibility.
-  use_frameworks! :linkage => :static
-  target.build_configurations.each do |config|
-    config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
-      '$(inherited)',
-      # This is required by Flutter itself.
-      'FLUTTER_FRAMEWORK=1',
-      # These definitions might be required by specific packages you use.
-      'FB_SONARKIT_ENABLED=1',
-      'SK_Ad_Network_ID=cstr6suwn9.skadnetwork'
-    ]
+def flutter_root
+  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+  unless File.exist?(generated_xcode_build_settings_path)
+    raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get is executed first"
   end
+
+  File.foreach(generated_xcode_build_settings_path) do |line|
+    matches = line.match(/FLUTTER_ROOT\=(.*)/)
+    return matches[1].strip if matches
+  end
+  raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Generated.xcconfig and running flutter pub get"
 end
 
-# This is the main target for your application.
+require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+
+# ESTA ES LA LINEA IMPORTANTE. TIENE QUE DECIR 'Runner'
 target 'Runner' do
-  # Enables modular headers, which helps prevent name clashes between pods. Crucial for Firebase.
+  use_frameworks!
   use_modular_headers!
 
-  # This is the magic command that finds all the iOS code required by your Flutter plugins
-  # (like cloud_firestore, firebase_core, etc.) and sets them up for compilation.
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-
-  # Standard target for your native iOS tests.
-  target 'RunnerTests' do
-    inherit! :search_paths
-  end
 end
 
-# This block runs after all pods have been installed.
 post_install do |installer|
   installer.pods_project.targets.each do |target|
-    # Applies the Flutter-specific settings to every single pod.
     flutter_additional_ios_build_settings(target)
   end
 end
