@@ -1,6 +1,7 @@
 # Defines the minimum iOS version your app will support.
-# This should match the 'IPHONEOS_DEPLOYMENT_TARGET' in your Xcode project settings.
-platform :ios, '13.0'
+# This MUST match the 'IPHONEOS_DEPLOYMENT_TARGET' in your Xcode project settings.
+# Firebase and other modern plugins require a higher version.
+platform :ios, '15.0'
 
 # Standard boilerplate to disable CocoaPods analytics.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
