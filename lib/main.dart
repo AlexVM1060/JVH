@@ -1,6 +1,7 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/home_page.dart';
 import 'package:myapp/inventory_page.dart';
 import 'package:myapp/login_page.dart';
 import 'package:myapp/settings_page.dart';
@@ -33,7 +34,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final PageController _pageController = PageController();
   int _selectedIndex = 0;
-  int _counter = 0;
 
   final iconList = <IconData>[
     CupertinoIcons.house_fill,
@@ -47,12 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
     'Ajustes',
   ];
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
   @override
   void dispose() {
     _pageController.dispose();
@@ -62,9 +56,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = <Widget>[
-      HomePage(counter: _counter, onIncrement: _incrementCounter),
+      const HomePage(),
       const InventoryPage(),
-      SettingsPage(counter: _counter, onIncrement: _incrementCounter),
+      const SettingsPage(counter: 0, onIncrement: null),
     ];
 
     return Scaffold(
@@ -111,40 +105,6 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         },
         backgroundColor: CupertinoColors.systemBackground.resolveFrom(context),
-      ),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key, required this.counter, required this.onIncrement});
-
-  final int counter;
-  final VoidCallback onIncrement;
-
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('Inicio'),
-      ),
-      child: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text('You have pushed the button this many times:'),
-              Text(
-                '$counter',
-                style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
-              ),
-              CupertinoButton(
-                onPressed: onIncrement,
-                child: const Text("Incrementar contador"),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
