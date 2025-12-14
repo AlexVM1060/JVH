@@ -1,4 +1,6 @@
-# myapp
+# JVH Project
+
+Una aplicacion creada por JVH Team con el fin de ayudar a los emprendimientos a gestionar mejor su parte administrativa
 
 A new Flutter project.
 
