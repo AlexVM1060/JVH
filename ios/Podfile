@@ -1,0 +1,24 @@
+source 'https://cdn.cocoapods.org/'
+platform :ios, '12.0'
+
+target 'MyApp' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for MyApp
+  pod 'Firebase/Core'
+  pod 'Firebase/Analytics'
+  pod 'Firebase/Crashlytics'
+
+  # Add any specific pods needed for CodeMagic here,
+  # though usually it's just the standard app dependencies.
+  # For example, if you use a specific build tool or SDK for CI/CD,
+  # you might add it here, but it's not common for Codemagic itself.
+
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+  end
+end
