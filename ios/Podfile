@@ -1,44 +1,53 @@
-# Uncomment this line to define a global platform for your project
-# platform :ios, '15.0'
+# Defines the minimum iOS version your app will support.
+# This should match the 'IPHONEOS_DEPLOYMENT_TARGET' in your Xcode project settings.
+platform :ios, '13.0'
 
-# CocoaPods analytics sends network requests to Google Analytics to track usage.
-# Features like Cocoapods-Try are not working for app developers.
-# For more information, see: https://github.com/CocoaPods/CocoaPods/issues/7641
-#
-# To disable analytics, uncomment the following line:
-# ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+# Standard boilerplate to disable CocoaPods analytics.
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
+# Maps your Xcode project's build configurations to the ones CocoaPods will use.
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,
   'Release' => :release,
 }
 
+# This is a Flutter-specific function. It injects required settings into each dependency (Pod).
 def flutter_additional_ios_build_settings(target)
+  # 'use_frameworks!' is necessary for Flutter and many plugins (like Firebase) that use Swift.
+  # We use static linkage for better compatibility.
   use_frameworks! :linkage => :static
   target.build_configurations.each do |config|
     config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
       '$(inherited)',
+      # This is required by Flutter itself.
       'FLUTTER_FRAMEWORK=1',
+      # These definitions might be required by specific packages you use.
       'FB_SONARKIT_ENABLED=1',
       'SK_Ad_Network_ID=cstr6suwn9.skadnetwork'
     ]
   end
 end
 
+# This is the main target for your application.
 target 'Runner' do
-  use_frameworks! :linkage => :static
+  # Enables modular headers, which helps prevent name clashes between pods. Crucial for Firebase.
   use_modular_headers!
 
+  # This is the magic command that finds all the iOS code required by your Flutter plugins
+  # (like cloud_firestore, firebase_core, etc.) and sets them up for compilation.
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
+  # Standard target for your native iOS tests.
   target 'RunnerTests' do
     inherit! :search_paths
   end
+end
 
-  post_install do |installer|
-    installer.pods_project.targets.each do |target|
-      flutter_additional_ios_build_settings(target)
-    end
+# This block runs after all pods have been installed.
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    # Applies the Flutter-specific settings to every single pod.
+    flutter_additional_ios_build_settings(target)
   end
 end
