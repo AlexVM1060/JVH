@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:myapp/main.dart';
-import 'package:myapp/welcome_page.dart';
+import 'welcome_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

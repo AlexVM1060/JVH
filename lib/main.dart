@@ -1,10 +1,10 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/home_page.dart';
-import 'package:myapp/inventory_page.dart';
-import 'package:myapp/login_page.dart';
-import 'package:myapp/settings_page.dart';
+import 'home_page.dart';
+import 'inventory_page.dart';
+import 'login_page.dart';
+import 'settings_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -41,11 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
     CupertinoIcons.settings_solid,
   ];
 
-  final iconLabels = <String>[
-    'Inicio',
-    'Inventario',
-    'Ajustes',
-  ];
+  final iconLabels = <String>['Inicio', 'Inventario', 'Ajustes'];
 
   @override
   void dispose() {
@@ -58,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final List<Widget> pages = <Widget>[
       const HomePage(),
       const InventoryPage(),
-      const SettingsPage(counter: 0, onIncrement: null),
+      const SettingsPage(),
     ];
 
     return Scaffold(
@@ -74,22 +70,20 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: AnimatedBottomNavigationBar.builder(
         itemCount: iconList.length,
         tabBuilder: (int index, bool isActive) {
-          final color = isActive ? CupertinoColors.activeBlue : CupertinoColors.secondaryLabel;
+          final color = isActive
+              ? CupertinoColors.activeBlue
+              : CupertinoColors.secondaryLabel;
           return Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                iconList[index],
-                size: 24,
-                color: color,
-              ),
+              Icon(iconList[index], size: 24, color: color),
               const SizedBox(height: 4),
               Text(
                 iconLabels[index],
                 maxLines: 1,
                 style: TextStyle(color: color, fontSize: 12),
-              )
+              ),
             ],
           );
         },
