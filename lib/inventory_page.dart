@@ -1,16 +1,16 @@
 import 'package:flutter/cupertino.dart';
 
-class SQLPage extends StatelessWidget {
-  const SQLPage({super.key});
+class InventoryPage extends StatelessWidget {
+  const InventoryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('SQL'),
+        middle: Text('Inventario'),
       ),
       child: Center(
-        child: Text('Página de SQL'),
+        child: Text('Aquí se mostrará la lista de productos.'),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/welcome_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
     if (_usernameController.text == '1' && _passwordController.text == '1') {
       Navigator.pushReplacement(
         context,
-        CupertinoPageRoute(builder: (context) => const MyHomePage(title: 'Flutter Demo Home Page')),
+        CupertinoPageRoute(builder: (context) => const WelcomePage()),
       );
     } else {
       showCupertinoDialog(
@@ -42,9 +43,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('Login'),
-      ),
+      navigationBar: const CupertinoNavigationBar(middle: Text('Login')),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
