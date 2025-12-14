@@ -10,9 +10,8 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   flutter_animate: ^4.5.2
-  firebase_core: ^4.2.1
-  cloud_firestore: ^6.1.0
   animated_bottom_navigation_bar: ^1.4.0
+  supabase_flutter: ^2.12.0
 
 dev_dependencies:
   flutter_test:

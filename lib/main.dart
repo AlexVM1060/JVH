@@ -1,20 +1,20 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/firebase_options.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:myapp/home_page.dart';
 import 'package:myapp/inventory_page.dart';
-import 'package:myapp/login_page.dart';
 import 'package:myapp/settings_page.dart';
 
-// Este es el nuevo bloque de código para inicializar Firebase
+// Este es el nuevo bloque de código para inicializar Supabase
 void main() async {
   // Asegura que todos los bindings de Flutter estén listos antes de ejecutar código nativo.
   WidgetsFlutterBinding.ensureInitialized();
-  // Usa el archivo "firebase_options.dart" para conectar tu app con tu proyecto de Firebase.
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  // Usa el archivo "supabase_options.dart" para conectar tu app con tu proyecto de Supabase.
+  await Supabase.initialize(
+    url: 'https://yjowjgbzgacfjsvfccwo.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlqb3dqZ2J6Z2FjZmpzdmZjY3dvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3NDgyNDIsImV4cCI6MjA4MTMyNDI0Mn0.EmTEEDQxMZ0CR7HIONQjBKeKJn68kGMMkp3T-NVS5wo',
   );
   // Una vez conectado, ejecuta la aplicación.
   runApp(const MyApp());
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Flutter Demo',
-      home: LoginPage(),
+      home: MyHomePage(),
       debugShowCheckedModeBanner: false,
     );
   }

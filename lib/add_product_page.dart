@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddProductPage extends StatefulWidget {
   const AddProductPage({super.key});
@@ -9,15 +9,12 @@ class AddProductPage extends StatefulWidget {
 }
 
 class _AddProductPageState extends State<AddProductPage> {
-  final _nameController = TextEditingController();
-  final _quantityController = TextEditingController();
-  final _priceController = TextEditingController();
+  final _skuController = TextEditingController();
+  final _articleIdController = TextEditingController();
   bool _isLoading = false;
 
   Future<void> _addProduct() async {
-    if (_nameController.text.isEmpty ||
-        _quantityController.text.isEmpty ||
-        _priceController.text.isEmpty) {
+    if (_skuController.text.isEmpty) {
       // Muestra un error si los campos están vacíos
       showCupertinoDialog(
         context: context,
@@ -40,11 +37,15 @@ class _AddProductPageState extends State<AddProductPage> {
     });
 
     try {
-      await FirebaseFirestore.instance.collection('products').add({
-        'name': _nameController.text,
-        'quantity': int.tryParse(_quantityController.text) ?? 0,
-        'price': double.tryParse(_priceController.text) ?? 0.0,
-        'createdAt': FieldValue.serverTimestamp(),
+      await Supabase.instance.client.from('producto').insert({
+        'nombre_sku': _skuController.text,
+        'id_articulo': null,
+        // int.tryParse(_articleIdController.text),
+        // Por ahora, los demás campos los dejaremos en null
+        'id_talla': null,
+        'id_temporada': null,
+        'id_color': null,
+        'id_marca': null,
       });
 
       if (mounted) {
@@ -84,24 +85,11 @@ class _AddProductPageState extends State<AddProductPage> {
               child: Column(
                 children: [
                   CupertinoTextField(
-                    controller: _nameController,
-                    placeholder: 'Nombre del Producto',
+                    controller: _skuController,
+                    placeholder: 'Nombre SKU',
                     padding: const EdgeInsets.all(12.0),
                   ),
                   const SizedBox(height: 16),
-                  CupertinoTextField(
-                    controller: _quantityController,
-                    placeholder: 'Cantidad',
-                    keyboardType: TextInputType.number,
-                    padding: const EdgeInsets.all(12.0),
-                  ),
-                  const SizedBox(height: 16),
-                  CupertinoTextField(
-                    controller: _priceController,
-                    placeholder: 'Precio',
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    padding: const EdgeInsets.all(12.0),
-                  ),
                   const SizedBox(height: 32),
                   CupertinoButton.filled(
                     onPressed: _isLoading ? null : _addProduct,
@@ -111,9 +99,7 @@ class _AddProductPageState extends State<AddProductPage> {
               ),
             ),
             if (_isLoading)
-              const Center(
-                child: CupertinoActivityIndicator(radius: 20),
-              ),
+              const Center(child: CupertinoActivityIndicator(radius: 20)),
           ],
         ),
       ),
