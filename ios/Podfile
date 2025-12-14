@@ -1,7 +1,12 @@
+# Uncomment this line to define a global platform for your project
 platform :ios, '15.0'
 
-# CocoaPods analytics is not supported on CI
-ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+# CocoaPods analytics sends network requests to Google Analytics to track usage.
+# Features like Cocoapods-Try are not working for app developers.
+# For more information, see: https://github.com/CocoaPods/CocoaPods/issues/7641
+#
+# To disable analytics, uncomment the following line:
+# ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
 project 'Runner', {
   'Debug' => :debug,
@@ -9,31 +14,31 @@ project 'Runner', {
   'Release' => :release,
 }
 
-def flutter_root
-  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
-  unless File.exist?(generated_xcode_build_settings_path)
-    raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get is executed first"
+def flutter_additional_ios_build_settings(target)
+  use_frameworks! :linkage => :static
+  target.build_configurations.each do |config|
+    config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+      '$(inherited)',
+      'FLUTTER_FRAMEWORK=1',
+      'FB_SONARKIT_ENABLED=1',
+      'SK_Ad_Network_ID=cstr6suwn9.skadnetwork'
+    ]
   end
-
-  File.foreach(generated_xcode_build_settings_path) do |line|
-    matches = line.match(/FLUTTER_ROOT\=(.*)/)
-    return matches[1].strip if matches
-  end
-  raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Generated.xcconfig and running flutter pub get"
 end
 
-require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
-
-# ESTA ES LA LINEA IMPORTANTE. TIENE QUE DECIR 'Runner'
 target 'Runner' do
-  use_frameworks!
+  use_frameworks! :linkage => :static
   use_modular_headers!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-end
 
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    flutter_additional_ios_build_settings(target)
+  target 'RunnerTests' do
+    inherit! :search_paths
+  end
+
+  post_install do |installer|
+    installer.pods_project.targets.each do |target|
+      flutter_additional_ios_build_settings(target)
+    end
   end
 end

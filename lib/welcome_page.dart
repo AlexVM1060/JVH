@@ -24,9 +24,7 @@ class _WelcomePageState extends State<WelcomePage> {
     if (mounted) {
       Navigator.pushReplacement(
         context,
-        CupertinoPageRoute(
-          builder: (context) => const MyHomePage(title: 'JVH'),
-        ),
+        CupertinoPageRoute(builder: (context) => const MyHomePage()),
       );
     }
   }

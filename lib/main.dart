@@ -1,12 +1,22 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'home_page.dart';
-import 'inventory_page.dart';
-import 'login_page.dart';
-import 'settings_page.dart';
+import 'package:myapp/firebase_options.dart';
+import 'package:myapp/home_page.dart';
+import 'package:myapp/inventory_page.dart';
+import 'package:myapp/login_page.dart';
+import 'package:myapp/settings_page.dart';
 
-void main() {
+// Este es el nuevo bloque de código para inicializar Firebase
+void main() async {
+  // Asegura que todos los bindings de Flutter estén listos antes de ejecutar código nativo.
+  WidgetsFlutterBinding.ensureInitialized();
+  // Usa el archivo "firebase_options.dart" para conectar tu app con tu proyecto de Firebase.
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  // Una vez conectado, ejecuta la aplicación.
   runApp(const MyApp());
 }
 
@@ -24,8 +34,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();

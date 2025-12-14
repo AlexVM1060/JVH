@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/add_product_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -74,23 +75,28 @@ class HomePage extends StatelessWidget {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
           physics: const NeverScrollableScrollPhysics(),
-          children: const [
+          children: [
             ActionCard(
               title: 'Añadir Producto',
               icon: CupertinoIcons.plus_app_fill,
               color: CupertinoColors.systemGreen,
+              onTap: () {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (context) => const AddProductPage()),
+                );
+              },
             ),
-            ActionCard(
+            const ActionCard(
               title: 'Buscar',
               icon: CupertinoIcons.search,
               color: CupertinoColors.systemIndigo,
             ),
-            ActionCard(
+            const ActionCard(
               title: 'Escanear Código',
               icon: CupertinoIcons.barcode_viewfinder,
               color: CupertinoColors.systemPink,
             ),
-            ActionCard(
+            const ActionCard(
               title: 'Ver Reportes',
               icon: CupertinoIcons.chart_bar_square_fill,
               color: CupertinoColors.systemPurple,
@@ -158,16 +164,18 @@ class ActionCard extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.color,
+    this.onTap,
   });
 
   final String title;
   final IconData icon;
   final Color color;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: CupertinoTheme.of(context).barBackgroundColor,
