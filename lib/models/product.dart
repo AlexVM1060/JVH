@@ -1,5 +1,3 @@
-
-// Clases para representar las tablas relacionadas
 class Articulo {
   final int id;
   final String nombre;
@@ -9,7 +7,7 @@ class Articulo {
   factory Articulo.fromJson(Map<String, dynamic> json) {
     return Articulo(
       id: json['id_articulo'] ?? 0,
-      nombre: json['nombre'] ?? 'Sin nombre',
+      nombre: json['nombre_articulo'] ?? 'Sin Articulo',
     );
   }
 }
@@ -23,7 +21,7 @@ class Talla {
   factory Talla.fromJson(Map<String, dynamic> json) {
     return Talla(
       id: json['id_talla'] ?? 0,
-      nombre: json['nombre'] ?? 'N/A',
+      nombre: json['nombre_talla'] ?? 'Sin Talla',
     );
   }
 }
@@ -37,7 +35,7 @@ class Temporada {
   factory Temporada.fromJson(Map<String, dynamic> json) {
     return Temporada(
       id: json['id_temporada'] ?? 0,
-      nombre: json['nombre'] ?? 'N/A',
+      nombre: json['nombre_temporada'] ?? 'Sin Temporada',
     );
   }
 }
@@ -51,7 +49,7 @@ class Color {
   factory Color.fromJson(Map<String, dynamic> json) {
     return Color(
       id: json['id_color'] ?? 0,
-      nombre: json['nombre'] ?? 'N/A',
+      nombre: json['nombre_color'] ?? 'Sin Color',
     );
   }
 }
@@ -65,15 +63,15 @@ class Marca {
   factory Marca.fromJson(Map<String, dynamic> json) {
     return Marca(
       id: json['id_marca'] ?? 0,
-      nombre: json['nombre'] ?? 'N/A',
+      nombre: json['nombre_marca'] ?? 'Sin Marca',
     );
   }
 }
 
-// Clase principal para el Producto
 class Producto {
   final int id;
   final String nombreSku;
+  final String? descripcion; // <-- AÑADIDO
   final Articulo? articulo;
   final Talla? talla;
   final Temporada? temporada;
@@ -83,6 +81,7 @@ class Producto {
   Producto({
     required this.id,
     required this.nombreSku,
+    this.descripcion, // <-- AÑADIDO
     this.articulo,
     this.talla,
     this.temporada,
@@ -94,7 +93,7 @@ class Producto {
     return Producto(
       id: json['id_producto'] ?? 0,
       nombreSku: json['nombre_sku'] ?? 'SKU Desconocido',
-      // Supabase devuelve las relaciones como un objeto si no es nulo
+      descripcion: json['descripcion'], // <-- AÑADIDO
       articulo: json['articulo'] != null ? Articulo.fromJson(json['articulo']) : null,
       talla: json['talla'] != null ? Talla.fromJson(json['talla']) : null,
       temporada: json['temporada'] != null ? Temporada.fromJson(json['temporada']) : null,

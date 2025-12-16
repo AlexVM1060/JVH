@@ -10,125 +10,156 @@ class InventoryPage extends StatefulWidget {
 }
 
 class _InventoryPageState extends State<InventoryPage> {
-  late final Future<List<Producto>> _future;
+  late final Future<List<Producto>> _productsFuture;
 
   @override
   void initState() {
     super.initState();
-    _future = _getProducts();
+    _productsFuture = _getProducts();
   }
 
   Future<List<Producto>> _getProducts() async {
-    // CORRECCIÓN: La consulta ahora pide explícitamente los datos de las tablas relacionadas.
-    // La sintaxis `tabla_relacionada(id, nombre)` le dice a Supabase que traiga esos campos.
-    final response = await Supabase.instance.client.from('producto').select('''
-      id_producto,
-      nombre_sku
-    ''');
+    try {
+      final response = await Supabase.instance.client.from('producto').select(
+        '''
+        id_producto,
+        nombre_sku,
+        articulo:id_articulo ( id_articulo, nombre_articulo ),
+        talla:id_talla ( id_talla, nombre_talla ),
+        temporada:id_temporada ( id_temporada, nombre_temporada ),
+        color:id_color ( id_color, nombre_color ),
+        marca:id_marca ( id_marca, nombre_marca )
+      ''',
+      );
 
-    final List<dynamic> data = response as List<dynamic>;
-    return data
-        .map((json) => Producto.fromJson(json as Map<String, dynamic>))
-        .toList();
+      final List<dynamic> data = response as List<dynamic>;
+      return data.map((json) => Producto.fromJson(json)).toList();
+    } catch (e) {
+      print('Error al obtener productos: $e');
+      rethrow;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(middle: Text('Inventario')),
+      navigationBar: const CupertinoNavigationBar(
+        middle: Text('Inventario de Productos'),
+      ),
       child: FutureBuilder<List<Producto>>(
-        future: _future,
+        future: _productsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CupertinoActivityIndicator());
-          }
-
-          if (snapshot.hasError) {
-            // Imprime el error en la consola para más detalles de depuración
-            print(snapshot.error);
-            print(snapshot.stackTrace);
-            return Center(child: Text('Ocurrió un error: ${snapshot.error}'));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
-              child: Text(
-                'Aún no hay productos.\n¡Añade uno desde la pantalla de inicio!',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: CupertinoColors.secondaryLabel),
-              ),
+              child: Text('No hay productos en el inventario.'),
             );
           }
 
           final products = snapshot.data!;
-
           return ListView.builder(
             itemCount: products.length,
-            itemBuilder: (context, index) {
-              final product = products[index];
-
-              return ProductListTile(
-                title: Text(product.nombreSku),
-                subtitle: Text(
-                  '${product.articulo?.nombre ?? 'Artículo desc.'} - ${product.color?.nombre ?? 'Color desc.'} - ${product.marca?.nombre ?? 'Marca desc.'}',
-                ),
-                trailing: Text(
-                  'Talla: ${product.talla?.nombre ?? 'N/A'}',
-                  style: const TextStyle(color: CupertinoColors.secondaryLabel),
-                ),
-              );
-            },
+            itemBuilder: (context, index) => _buildProductCard(products[index]),
           );
         },
       ),
     );
   }
-}
 
-class ProductListTile extends StatelessWidget {
-  final Widget title;
-  final Widget? subtitle;
-  final Widget? trailing;
-
-  const ProductListTile({
-    super.key,
-    required this.title,
-    this.subtitle,
-    this.trailing,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildProductCard(Producto product) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: CupertinoColors.separator, width: 0.5),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: CupertinoColors.secondarySystemGroupedBackground.resolveFrom(
+          context,
         ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: CupertinoColors.systemGrey.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            product.nombreSku,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          const SizedBox(height: 12),
+          // 2. MOSTRAMOS la descripción si existe
+          if (product.descripcion != null && product.descripcion!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                product.descripcion!,
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: CupertinoColors.secondaryLabel,
+                ),
+              ),
+            ),
+          const SizedBox(height: 4),
+          _buildInfoRow(
+            CupertinoIcons.tag_solid,
+            'Artículo',
+            product.articulo?.nombre,
+          ),
+          _buildInfoRow(
+            CupertinoIcons.textformat_size,
+            'Talla',
+            product.talla?.nombre,
+          ),
+          _buildInfoRow(
+            CupertinoIcons.calendar,
+            'Temporada',
+            product.temporada?.nombre,
+          ),
+          _buildInfoRow(
+            CupertinoIcons.color_filter,
+            'Color',
+            product.color?.nombre,
+          ),
+          _buildInfoRow(
+            CupertinoIcons.bookmark_solid,
+            'Marca',
+            product.marca?.nombre,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String? value) {
+    if (value == null || value.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 6.0),
       child: Row(
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DefaultTextStyle(
-                  style: CupertinoTheme.of(context).textTheme.textStyle,
-                  child: title,
-                ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 4),
-                  DefaultTextStyle(
-                    style: CupertinoTheme.of(
-                      context,
-                    ).textTheme.tabLabelTextStyle.copyWith(fontSize: 14),
-                    child: subtitle!,
-                  ),
-                ],
-              ],
+          Icon(icon, color: CupertinoColors.secondaryLabel, size: 18),
+          const SizedBox(width: 8),
+          Text(
+            '$label:',
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              color: CupertinoColors.secondaryLabel,
             ),
           ),
-          if (trailing != null) ...[const SizedBox(width: 16), trailing!],
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 16),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
