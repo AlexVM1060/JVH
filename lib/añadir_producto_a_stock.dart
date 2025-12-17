@@ -8,14 +8,14 @@ class Option {
   Option({required this.id, required this.name});
 }
 
-class AddProductPage extends StatefulWidget {
-  const AddProductPage({super.key});
+class AddStockPage extends StatefulWidget {
+  const AddStockPage({super.key});
 
   @override
-  State<AddProductPage> createState() => _AddProductPageState();
+  State<AddStockPage> createState() => _AddStockPageState();
 }
 
-class _AddProductPageState extends State<AddProductPage> {
+class _AddStockPageState extends State<AddStockPage> {
   final _skuController = TextEditingController();
   // 1. Añadimos un controlador para el nuevo campo de descripción
   final _descriptionController = TextEditingController();
@@ -64,49 +64,38 @@ class _AddProductPageState extends State<AddProductPage> {
 
       setState(() {
         _articulos = (responses[0] as List)
-            .map((item) {
-              final m = item as Map<String, dynamic>;
-              return Option(
-                id: m['id_articulo'] as int,
-                name: m['nombre_articulo'] as String,
-              );
-            })
+            .map(
+              (item) => Option(
+                id: item['id_articulo'],
+                name: item['nombre_articulo'],
+              ),
+            )
             .toList();
         _tallas = (responses[1] as List)
-            .map((item) {
-              final m = item as Map<String, dynamic>;
-              return Option(
-                id: m['id_talla'] as int,
-                name: m['nombre_talla'] as String,
-              );
-            })
+            .map(
+              (item) =>
+                  Option(id: item['id_talla'], name: item['nombre_talla']),
+            )
             .toList();
         _temporadas = (responses[2] as List)
-            .map((item) {
-              final m = item as Map<String, dynamic>;
-              return Option(
-                id: m['id_temporada'] as int,
-                name: m['nombre_temporada'] as String,
-              );
-            })
+            .map(
+              (item) => Option(
+                id: item['id_temporada'],
+                name: item['nombre_temporada'],
+              ),
+            )
             .toList();
         _colores = (responses[3] as List)
-            .map((item) {
-              final m = item as Map<String, dynamic>;
-              return Option(
-                id: m['id_color'] as int,
-                name: m['nombre_color'] as String,
-              );
-            })
+            .map(
+              (item) =>
+                  Option(id: item['id_color'], name: item['nombre_color']),
+            )
             .toList();
         _marcas = (responses[4] as List)
-            .map((item) {
-              final m = item as Map<String, dynamic>;
-              return Option(
-                id: m['id_marca'] as int,
-                name: m['nombre_marca'] as String,
-              );
-            })
+            .map(
+              (item) =>
+                  Option(id: item['id_marca'], name: item['nombre_marca']),
+            )
             .toList();
       });
     } catch (e) {
@@ -129,46 +118,18 @@ class _AddProductPageState extends State<AddProductPage> {
 
     setState(() => _isLoading = true);
     try {
-      final inserted = await Supabase.instance.client
-          .from('producto')
-          .insert({
-            'nombre_sku': _skuController.text,
-            'id_articulo': _selectedArticuloId,
-            'id_talla': _selectedTallaId,
-            'id_temporada': _selectedTemporadaId,
-            'id_color': _selectedColorId,
-            'id_marca': _selectedMarcaId,
-          })
-          .select('id_producto')
-          .maybeSingle();
+      await Supabase.instance.client.from('producto').insert({
+        'nombre_sku': _skuController.text,
+        // 2. Añadimos la descripción al objeto que se inserta en la base de datos
+        // 'descripcion': _descriptionController.text,
+        'id_articulo': _selectedArticuloId,
+        'id_talla': _selectedTallaId,
+        'id_temporada': _selectedTemporadaId,
+        'id_color': _selectedColorId,
+        'id_marca': _selectedMarcaId,
+      });
 
-      int? newId;
-      final Map<String, dynamic>? mapInserted = (() {
-        if (inserted == null) return null;
-        if (inserted is Map<String, dynamic>) return inserted as Map<String, dynamic>;
-        if (inserted is Map) return (inserted as Map).cast<String, dynamic>();
-        return null;
-      })();
-      if (mapInserted != null) {
-        final val = mapInserted['id_producto'];
-        if (val is int) {
-          newId = val;
-        } else if (val is String) {
-          newId = int.tryParse(val);
-        } else if (val != null) {
-          newId = int.tryParse(val.toString());
-        }
-      } else if (inserted != null) {
-        newId = int.tryParse(inserted.toString());
-      }
-
-      if (mounted) {
-        if (newId != null) {
-          _showSuccessDialog('El ID de tu producto es: $newId\nColocalo en la etiqueta de tu prenda');
-        } else {
-          _showSuccessDialog('Producto guardado.');
-        }
-      }
+      if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) _showErrorDialog('Error al guardar el producto: $e');
     } finally {
@@ -179,9 +140,7 @@ class _AddProductPageState extends State<AddProductPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('Añadir Producto'),
-      ),
+      navigationBar: const CupertinoNavigationBar(middle: Text('Añadir Stock')),
       child: SafeArea(
         child: Stack(
           children: [
@@ -192,59 +151,13 @@ class _AddProductPageState extends State<AddProductPage> {
                 children: [
                   CupertinoTextField(
                     controller: _skuController,
-                    placeholder: 'Nombre SKU (ej. BLUSA-ZARA-ROJA-XS)',
+                    placeholder: 'Ingrese el ID del Producto en la etiqueta',
                     padding: const EdgeInsets.all(12.0),
                   ),
-                  const SizedBox(height: 16),
-                  _buildPickerButton(
-                    'Artículo',
-                    _selectedArticuloName,
-                    _articulos,
-                    (id, name) => setState(() {
-                      _selectedArticuloId = id;
-                      _selectedArticuloName = name;
-                    }),
-                  ),
-                  _buildPickerButton(
-                    'Talla',
-                    _selectedTallaName,
-                    _tallas,
-                    (id, name) => setState(() {
-                      _selectedTallaId = id;
-                      _selectedTallaName = name;
-                    }),
-                  ),
-                  _buildPickerButton(
-                    'Temporada',
-                    _selectedTemporadaName,
-                    _temporadas,
-                    (id, name) => setState(() {
-                      _selectedTemporadaId = id;
-                      _selectedTemporadaName = name;
-                    }),
-                  ),
-                  _buildPickerButton(
-                    'Color',
-                    _selectedColorName,
-                    _colores,
-                    (id, name) => setState(() {
-                      _selectedColorId = id;
-                      _selectedColorName = name;
-                    }),
-                  ),
-                  _buildPickerButton(
-                    'Marca',
-                    _selectedMarcaName,
-                    _marcas,
-                    (id, name) => setState(() {
-                      _selectedMarcaId = id;
-                      _selectedMarcaName = name;
-                    }),
-                  ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 20),
                   CupertinoButton.filled(
                     onPressed: _isLoading ? null : _addProduct,
-                    child: const Text('Guardar Producto'),
+                    child: const Text('Buscar Producto'),
                   ),
                 ],
               ),
@@ -268,25 +181,6 @@ class _AddProductPageState extends State<AddProductPage> {
           CupertinoDialogAction(
             child: const Text('OK'),
             onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  void _showSuccessDialog(String message) {
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Éxito'),
-        content: Text(message),
-        actions: [
-          CupertinoDialogAction(
-            child: const Text('OK'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
           ),
         ],
       ),

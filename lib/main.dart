@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:myapp/home_page.dart';
 import 'package:myapp/inventory_page.dart';
 import 'package:myapp/settings_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Este es el nuevo bloque de código para inicializar Supabase
 void main() async {
@@ -20,21 +21,92 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTheme();
+  }
+
+  Future<void> _loadTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getString('theme_mode');
+    setState(() {
+      switch (stored) {
+        case 'light':
+          _themeMode = ThemeMode.light;
+          break;
+        case 'dark':
+          _themeMode = ThemeMode.dark;
+          break;
+        default:
+          _themeMode = ThemeMode.system;
+      }
+    });
+  }
+
+  Future<void> _setThemeMode(ThemeMode mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = mode == ThemeMode.light
+        ? 'light'
+        : mode == ThemeMode.dark
+            ? 'dark'
+            : 'system';
+    await prefs.setString('theme_mode', key);
+    setState(() => _themeMode = mode);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
-      home: MyHomePage(),
+      theme: ThemeData.light(),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ),
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
+        cardColor: Colors.black,
+        textTheme: const TextTheme(
+          titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white),
+          titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+          bodyLarge: TextStyle(fontSize: 16, color: Colors.white),
+          bodyMedium: TextStyle(fontSize: 14, color: Colors.white70),
+        ),
+      ),
+      themeMode: _themeMode,
+      home: MyHomePage(
+        themeMode: _themeMode,
+        onThemeChanged: _setThemeMode,
+      ),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  const MyHomePage({
+    super.key,
+    this.themeMode,
+    this.onThemeChanged,
+  });
+
+  final ThemeMode? themeMode;
+  final ValueChanged<ThemeMode>? onThemeChanged;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -63,7 +135,10 @@ class _MyHomePageState extends State<MyHomePage> {
     final List<Widget> pages = <Widget>[
       const HomePage(),
       const InventoryPage(),
-      const SettingsPage(),
+      SettingsPage(
+        themeMode: widget.themeMode,
+        onThemeChanged: widget.onThemeChanged,
+      ),
     ];
 
     return Scaffold(

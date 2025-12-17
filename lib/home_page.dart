@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/a%C3%B1adir_producto_a_stock.dart';
 import 'package:myapp/add_product_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -8,7 +9,13 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(middle: Text('Dashboard')),
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        middle: Text(
+          'Dashboard',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      ),
       child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16.0),
@@ -23,14 +30,12 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildSummarySection(BuildContext context) {
-    return Column(
+        return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Resumen del Inventario',
-          style: CupertinoTheme.of(
-            context,
-          ).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Row(
@@ -86,6 +91,16 @@ class HomePage extends StatelessWidget {
                 );
               },
             ),
+            ActionCard(
+              title: 'Añadir Stock',
+              icon: CupertinoIcons.plus_app_fill,
+              color: CupertinoColors.systemBlue,
+              onTap: () {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (context) => const AddStockPage()),
+                );
+              },
+            ),
             const ActionCard(
               title: 'Buscar',
               icon: CupertinoIcons.search,
@@ -127,7 +142,7 @@ class SummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: CupertinoTheme.of(context).barBackgroundColor,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -144,13 +159,12 @@ class SummaryCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
-            style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle
-                .copyWith(color: color, fontSize: 32),
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(color: color, fontSize: 32),
           ),
           const SizedBox(height: 4),
           Text(
             title,
-            style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
       ),
@@ -178,7 +192,7 @@ class ActionCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: CupertinoTheme.of(context).barBackgroundColor,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -195,9 +209,7 @@ class ActionCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               title,
-              style: CupertinoTheme.of(
-                context,
-              ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
